@@ -73,7 +73,16 @@ function traerDatos()
         $result = $respuesta->fetchAll();
 
         $db->cerrarConexion();
-        return $result;
+        $data = array();
+        $i = 0;
+        foreach ($result as $estudiante){
+            $data[$i] = array(
+                "nombres" => $estudiante["nombres"],
+                "apellidos" => $estudiante["apellidos"],
+            );
+            $i++;
+        }
+        return $data;
     } catch (PDOException $e) {
         echo $e->getMessage();
     }

@@ -34,10 +34,29 @@ switch ($metodo) {
         echo json_encode(array("Resultado" => $mensaje));
         break;
     case "PATCH":
-        echo "utilizaste el metodo " . $metodo;
+        $id = $_GET["id"];
+        $codigo = $_GET["codigo"];
+        $nombres = $_GET["nombres"];
+        $apellidos = $_GET["apellidos"];
+        $telefono = $_GET["telefono"];
+        $email = $_GET["email"];
+        $id_pa = $_GET["id_pa"];
+
+        if(actualizarDatos($id, $codigo, $nombres, $apellidos, $telefono, $email, $id_pa)){
+            $mensaje = "datos actualizados";
+        }else{
+            $mensaje = "Error, no se actualizaron los datos";
+        }
+        echo json_encode(array("Resultado" => $mensaje));
         break;
     case "DELETE":
-        echo "utilizaste el metodo " . $metodo;
+        $id = $_GET["id"];
+        if(eliminarDatos($id)){
+            $mensaje = "datos eliminados";
+        }else{
+            $mensaje = "Error, no se eliminaros los datos";
+        }
+        echo json_encode(array("Resultado" => $mensaje));
         break;
 }
 
@@ -68,6 +87,58 @@ function guardarDatos($codigo, $nombres, $apellidos, $telefono, $correo, $id_pa)
         $conn = $db->abrirConexion();
 
         $sql = "INSERT INTO estudiantes(codigo, nombres, apellidos, telefono, correo, id_pa) VALUES('$codigo','$nombres','$apellidos', '$telefono', '$correo', $id_pa )";
+        $respuesta = $conn->prepare($sql);
+        $respuesta->execute();
+        $numRows = $respuesta->rowCount();
+        if ($numRows != 0) {
+            $result = true;
+        } else {
+            $result = false;
+        }
+
+        $db->cerrarConexion();
+
+        return $result;
+    } catch (PDOException $e) {
+        echo $e->getMessage();
+    }
+}
+
+function eliminarDatos($id)
+{
+    try {
+        $db = new ConexionDB();
+        $conn = $db->abrirConexion();
+
+        $sql = "DELETE FROM estudiantes WHERE id=$id";
+        $respuesta = $conn->prepare($sql);
+        $respuesta->execute();
+        $numRows = $respuesta->rowCount();
+        if ($numRows != 0) {
+            $result = true;
+        } else {
+            $result = false;
+        }
+
+        $db->cerrarConexion();
+
+        return $result;
+    } catch (PDOException $e) {
+        echo $e->getMessage();
+    }
+}
+
+function actualizarDatos($id, $codigo, $nombres, $apellidos, $telefono, $correo, $id_pa)
+{
+    $id = (int) $id;
+    $id_pa = (int) $id_pa;
+    try {
+        $db = new ConexionDB();
+        $conn = $db->abrirConexion();
+
+        $sql = "UPDATE estudiantes 
+                SET codigo='$codigo', nombres='$nombres', apellidos='$apellidos', telefono='$telefono', correo='$correo', id_pa=$id_pa 
+                WHERE id=$id";
         $respuesta = $conn->prepare($sql);
         $respuesta->execute();
         $numRows = $respuesta->rowCount();
